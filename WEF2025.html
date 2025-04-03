@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEF Future of Jobs Report 2025 Visualisation (Tabs + Context)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6; /* Light grey background */
+            color: #333;
+        }
+        .main-container {
+            max-width: 1400px; /* Increased width slightly for callouts */
+            margin: 20px auto;
+            background: #ffffff; /* White background */
+            padding: 20px 30px 30px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+             color: #003366; /* WEF Dark Blue */
+             margin-bottom: 0.8em;
+             padding-bottom: 0.4em;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.4em;
+            border-bottom: 3px solid #e0e0e0;
+            margin-bottom: 1em;
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-top: 1.5em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+         h3 {
+            font-size: 1.4em;
+            color: #005a9e; /* WEF Medium Blue */
+            margin-top: 1.5em;
+            border-bottom: none;
+        }
+
+        /* Tab Styles */
+        .tab-container {
+            overflow: hidden;
+             border-bottom: 1px solid #ccc;
+             margin-bottom: 20px;
+             background-color: #eef2f5; /* Light blue-grey */
+        }
+        .tab-button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            transition: 0.3s;
+            font-size: 1.1em;
+             color: #003366; /* WEF Dark Blue */
+             border-bottom: 3px solid transparent;
+        }
+        .tab-button:hover {
+            background-color: #dbe4ea; /* Slightly darker hover */
+             border-bottom: 3px solid #007bff; /* Highlight hover */
+        }
+        .tab-button.active {
+             background-color: #ffffff; /* White active */
+             color: #003366;
+             border-bottom: 3px solid #005a9e; /* WEF Medium Blue */
+             font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px 10px;
+            border-top: none;
+            animation: fadeEffect 0.5s; /* Fading effect */
+        }
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        /* Chart & Grid & Callout Styles */
+         .chart-wrapper {
+             display: flex;
+             flex-wrap: wrap; /* Allow wrapping on smaller screens */
+             align-items: center;
+             gap: 20px; /* Space between chart and callout */
+             margin: 30px auto;
+             padding: 15px;
+             background-color: #f8f9fa; /* Lighter background for charts */
+             border-radius: 5px;
+             box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+             border: 1px solid #e0e0e0;
+         }
+        .chart-container {
+            position: relative;
+             flex: 2; /* Chart takes more space */
+             min-width: 300px; /* Minimum width for chart */
+            height: 45vh;
+            /* Removed background/padding/border/shadow - moved to wrapper */
+        }
+        .callout-box {
+             flex: 1; /* Callout takes less space */
+             min-width: 250px; /* Minimum width for callout */
+             padding: 15px;
+             background-color: #e7f0f7; /* Lighter WEF blue shade */
+             border-left: 4px solid #005a9e; /* WEF Medium Blue accent */
+             border-radius: 4px;
+             font-size: 0.95em;
+             align-self: stretch; /* Make callout same height as chart */
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+        }
+         .callout-box h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #003366; /* WEF Dark Blue */
+            font-size: 1.1em;
+        }
+        .callout-box p {
+            margin-bottom: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        .grid-item {
+             background: #e7f0f7; /* Lighter WEF blue shade */
+            padding: 18px;
+            border-radius: 5px;
+             border-left: 5px solid #005a9e; /* WEF Medium Blue accent */
+        }
+         .grid-item h3 {
+            margin-top: 0;
+            color: #003366; /* WEF Dark Blue */
+        }
+         ul { list-style: none; padding: 0; }
+         li {
+             background: #fdfdfd;
+             margin-bottom: 8px;
+             padding: 10px 12px;
+             border-radius: 4px;
+             border-left: 3px solid #6cace4; /* Lighter WEF Blue */
+             transition: background-color 0.3s ease;
+         }
+         li:hover { background-color: #eef3f7; }
+         strong { color: #003366; } /* WEF Dark Blue */
+
+        /* Responsive Design */
+         @media (max-width: 992px) { /* Adjust breakpoint for callout stacking */
+            .chart-wrapper {
+                 flex-direction: column; /* Stack chart and callout */
+                 align-items: stretch; /* Stretch items full width */
+             }
+            .chart-container {
+                 height: 40vh; /* Adjust height when stacked */
+                 flex: auto; /* Reset flex basis */
+             }
+             .callout-box {
+                 flex: auto; /* Reset flex basis */
+                 border-left-width: 0; /* Remove side border when stacked */
+                 border-top: 4px solid #005a9e; /* Add top border */
+                 margin-top: 15px;
+             }
+         }
+         @media (max-width: 768px) {
+            .main-container { padding: 15px; margin: 10px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+            .grid-container { grid-template-columns: 1fr; }
+            .tab-button { padding: 12px 16px; font-size: 1em; }
+             .callout-box { font-size: 0.9em; }
+         }
+         @media (max-width: 480px) {
+             h1 { font-size: 1.6em; }
+             h2 { font-size: 1.3em; }
+             h3 { font-size: 1.1em; }
+             .tab-button { padding: 10px 12px; font-size: 0.9em; }
+             .chart-container { height: 35vh; }
+         }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>WEF Future of Jobs Report 2025 Highlights</h1>
+
+        <div class="tab-container">
+          <button class="tab-button active" onclick="openTab(event, 'tab-overview')">Overview</button>
+          <button class="tab-button" onclick="openTab(event, 'tab-drivers')">Drivers</button>
+          <button class="tab-button" onclick="openTab(event, 'tab-jobs')">Jobs Outlook</button>
+          <button class="tab-button" onclick="openTab(event, 'tab-skills')">Skills Outlook</button>
+          <button class="tab-button" onclick="openTab(event, 'tab-strategies')">Workforce Strategies</button>
+        </div>
+
+        <div id="tab-overview" class="tab-content" style="display: block;">
+            <h2>Key Findings Overview</h2>
+             <div class="grid-container">
+                 <div class="grid-item">
+                     <h3>Job Market Transformation</h3>
+                     <p>By 2030, structural labour-market transformation (creation and destruction) is expected to amount to <strong>22%</strong> of today's total jobs. This involves creating <strong>170 million</strong> new jobs (14% of current employment) and displacing <strong>92 million</strong> jobs (8%), resulting in a net growth of <strong>78 million</strong> jobs (7%).</p>
+                 </div>
+                 <div class="grid-item">
+                     <h3>Skill Disruption</h3>
+                     <p>On average, <strong>39%</strong> of workers' core skills are expected to change by 2030. This "skill instability" has slowed slightly compared to previous reports (44% in 2023). <strong>Analytical thinking</strong> remains the most sought-after core skill.</p>
+                 </div>
+                 <div class="grid-item">
+                     <h3>Top Trends</h3>
+                     <p><strong>Broadening digital access</strong> (60% of employers), rising cost of living (50%), and climate-change mitigation (47%) are the top trends expected to drive business transformation.</p>
+                 </div>
+                  <div class="grid-item">
+                     <h3>Workforce Strategies</h3>
+                     <p><strong>Upskilling</strong> the workforce (85%), accelerating automation (73%), and hiring staff with new skills (70%) are the top planned strategies.</p>
+                 </div>
+             </div>
+              <div class="chart-wrapper">
+                 <div class="chart-container">
+                    <canvas id="reskillingOutlookChart"></canvas>
+                 </div>
+                 <div class="callout-box">
+                     <h4>Training Needs by 2030</h4>
+                     <p>Analysis suggests significant training needs: out of 100 workers, 59 will require training by 2030. Employers anticipate 29 can be upskilled in current roles, and 19 reskilled/redeployed. However, 11 may lack access to necessary training, risking their employment prospects.</p>
+                 </div>
+              </div>
+        </div>
+
+        <div id="tab-drivers" class="tab-content">
+            <h2>Drivers of Transformation</h2>
+             <p>Technology adoption, particularly AI, and broadening digital access are major drivers. Economic factors like cost of living, geoeconomic shifts, the green transition, and demographic changes also play significant roles.</p>
+             <div class="chart-wrapper">
+                 <div class="chart-container">
+                     <canvas id="macrotrendsChart"></canvas>
+                 </div>
+                  <div class="callout-box">
+                      <h4>Macrotrends Shaping Business</h4>
+                      <p>Broadening digital access is seen as most transformative (60% of employers). Rising cost of living (50%) and efforts to reduce carbon emissions (47%) follow closely. Geopolitical division impacts about a third of businesses (34%).</p>
+                  </div>
+            </div>
+             <div class="chart-wrapper">
+                 <div class="chart-container">
+                     <canvas id="techtrendsChart"></canvas>
+                 </div>
+                 <div class="callout-box">
+                     <h4>Technology's Influence</h4>
+                     <p>AI and information processing technologies are expected to be the most impactful (86% of employers). Robots and autonomous systems (58%) and energy generation/storage technologies (41%) are also highly significant drivers of change.</p>
+                 </div>
+            </div>
+        </div>
+
+        <div id="tab-jobs" class="tab-content">
+            <h2>Jobs Outlook (2025-2030)</h2>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="fastestJobsChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Fastest Job Growth/Decline (%)</h4>
+                     <p>Technology-related roles like Big Data Specialists, FinTech Engineers, and AI/ML Specialists show the fastest growth rates. Conversely, clerical roles such as Postal Service Clerks, Bank Tellers, and Data Entry Clerks are expected to decline fastest, largely due to technology adoption.</p>
+                 </div>
+            </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="largestJobsChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Largest Job Growth/Decline (Absolute)</h4>
+                     <p>In terms of sheer numbers, frontline roles like Farmworkers, Delivery Drivers, and Construction Workers are projected for the largest net growth. Care and Education roles also grow significantly. The largest absolute declines are expected in roles like Cashiers, Administrative Assistants, and Stock-Keeping Clerks.</p>
+                 </div>
+            </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="trendImpactChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Net Impact of Trends on Jobs</h4>
+                     <p>Broadening digital access is expected to create the most jobs (net +9.9M), followed by growing working-age populations (+9.1M). Robotics and autonomous systems are the largest net job displacer (-4.8M), followed by slower economic growth (-1.6M). AI & info processing has a smaller net positive effect (+1.8M) due to significant displacement offsetting creation.</p>
+                 </div>
+            </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="humanMachineChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>The Human-Machine Frontier</h4>
+                     <p>Currently, employers estimate 47% of work tasks are done mainly by humans, 30% by human-machine combination, and 22% mainly by technology. By 2030, this is expected to shift to a near-even split: 33% human, 33% combination, and 34% technology. This highlights increasing automation and augmentation.</p>
+                 </div>
+            </div>
+        </div>
+
+        <div id="tab-skills" class="tab-content">
+            <h2>Skills Outlook (2025-2030)</h2>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="coreSkillsChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Core Skills Needed Now (2025)</h4>
+                     <p>Analytical thinking is the top core skill (69% of employers). Other essential skills include Resilience, flexibility & agility (67%), Leadership & social influence (61%), Creative thinking (57%), and Motivation & self-awareness (52%). Technological literacy is also key (51%).</p>
+                 </div>
+            </div>
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="risingSkillsChart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Skills Growing Fastest in Importance</h4>
+                     <p>AI & Big Data tops the list (87% net increase). Networks & Cybersecurity (70%) and Technological Literacy (66%) follow. Human-centric skills like Creative Thinking (66%), Resilience, flexibility & agility (66%), and Curiosity & lifelong learning (61%) are also rising rapidly.</p>
+                 </div>
+            </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="coreSkills2030Chart"></canvas>
+                </div>
+                 <div class="callout-box">
+                     <h4>Core Skills Landscape by 2030 (Proxy)</h4>
+                     <p>This chart proxies the future landscape (see Fig 3.6 in report). Skills crucial now and expected to grow further include AI & big data, analytical & creative thinking, resilience, and tech literacy. Emerging skills, becoming increasingly vital, include Networks & cybersecurity and Environmental stewardship.</p>
+                 </div>
+            </div>
+        </div>
+
+        <div id="tab-strategies" class="tab-content">
+             <h2>Workforce Strategies</h2>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="barriersChart"></canvas>
+                 </div>
+                 <div class="callout-box">
+                     <h4>Barriers to Transformation</h4>
+                     <p>Skills gaps in the labour market remain the primary barrier (63% of employers). Organisational culture & resistance to change (46%) and outdated or inflexible regulatory frameworks (39%) are also significant hurdles.</p>
+                 </div>
+             </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="workforceStrategiesChart"></canvas>
+                 </div>
+                 <div class="callout-box">
+                     <h4>Planned Workforce Strategies</h4>
+                     <p>Upskilling the current workforce is the most common strategy (85%). Accelerating automation (73%), hiring staff with new skills (70%), augmenting the workforce with tech (63%), and transitioning staff internally (51%) are other key approaches.</p>
+                 </div>
+             </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="talentPracticesChart"></canvas>
+                 </div>
+                  <div class="callout-box">
+                      <h4>Practices to Boost Talent Availability</h4>
+                      <p>Supporting employee health and well-being has emerged as the top practice (64%). Providing effective reskilling/upskilling (63%) and improving talent progression/promotion (62%) remain crucial. Offering higher wages (50%) and tapping into diverse talent pools (47%) are also key.</p>
+                  </div>
+             </div>
+              <div class="chart-wrapper">
+                 <div class="chart-container">
+                    <canvas id="talentPoliciesChart"></canvas>
+                 </div>
+                 <div class="callout-box">
+                     <h4>Desired Public Policies for Talent</h4>
+                     <p>Employers see the highest potential in public policies providing funding for reskilling/upskilling (55%) and direct provision of reskilling/upskilling (52%). Improving public education systems (47%) is also a high priority.</p>
+                 </div>
+              </div>
+              <div class="chart-wrapper">
+                 <div class="chart-container">
+                    <canvas id="deiMeasuresChart"></canvas>
+                 </div>
+                  <div class="callout-box">
+                      <h4>Planned Diversity, Equity & Inclusion (DEI) Measures</h4>
+                      <p>DEI training for managers/staff is the most commonly planned measure (51%). Targeted recruitment, retention, and progression initiatives (48%) and setting DEI goals/targets/quotas (42%) follow. Setting targets has seen the fastest growth in anticipated adoption since 2023.</p>
+                  </div>
+             </div>
+             <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="aiResponseChart"></canvas>
+                 </div>
+                  <div class="callout-box">
+                      <h4>Workforce Strategies in Response to AI</h4>
+                      <p>The most common strategies are reskilling/upskilling the existing workforce for AI collaboration (77%), hiring new talent with skills to design AI tools (69%), and hiring new talent skilled in working alongside AI (62%). A significant portion (41%) also anticipate downsizing where AI can replicate human work.</p>
+                  </div>
+             </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- WEF Colour Scheme (Approximated) ---
+         const wefColors = { darkBlue: 'rgba(0, 51, 102, 0.8)', mediumBlue: 'rgba(0, 90, 158, 0.8)', lightBlue: 'rgba(108, 172, 228, 0.8)', accentBlue: 'rgba(100, 181, 246, 0.8)', greyPurple: 'rgba(103, 58, 183, 0.7)', lightGrey: 'rgba(189, 189, 189, 0.8)', darkGrey: 'rgba(97, 97, 97, 0.8)', green: 'rgba(76, 175, 80, 0.8)', red: 'rgba(211, 47, 47, 0.8)', orange: 'rgba(251, 140, 0, 0.8)', yellow: 'rgba(255, 235, 59, 0.8)', };
+         const wefHoverColors = { darkBlue: 'rgba(0, 51, 102, 1)', mediumBlue: 'rgba(0, 90, 158, 1)', lightBlue: 'rgba(108, 172, 228, 1)', accentBlue: 'rgba(100, 181, 246, 1)', greyPurple: 'rgba(103, 58, 183, 1)', lightGrey: 'rgba(189, 189, 189, 1)', darkGrey: 'rgba(97, 97, 97, 1)', green: 'rgba(76, 175, 80, 1)', red: 'rgba(211, 47, 47, 1)', orange: 'rgba(251, 140, 0, 1)', yellow: 'rgba(255, 235, 59, 1)', };
+
+         // --- Chart Data (Same as before) ---
+         const macrotrendsData = { labels: ['Broadening digital access', 'Rising cost of living', 'Reduce carbon emissions', 'Labour/social issues', 'Slower economic growth', 'Adapt to climate change', 'Ageing/declining pops.', 'Geopolitical division', 'Growing working-age pops.', 'Trade restrictions', 'Govt subsidies/policy', 'Stricter anti-trust'], values: [60, 50, 47, 46, 42, 41, 40, 34, 24, 23, 21, 17] };
+         const techtrendsData = { labels: ['AI & info processing', 'Robots & autonomous', 'Energy gen./storage', 'New materials', 'Semiconductors', 'Sensing/laser/optical', 'Quantum/encryption', 'Biotech/gene tech.', 'Satellites/space'], values: [86, 58, 41, 30, 20, 18, 12, 11, 9] };
+         const fastestJobsData = { growingLabels: ['Big Data Specialists', 'FinTech Engineers', 'AI/ML Specialists', 'Software/App Devs', 'Security Mgmt Specs.', 'Data Warehousing Specs.', 'Autonomous/EV Specs.', 'UI/UX Designers', 'Delivery Drivers', 'IoT Specialists', 'Data Analysts/Scientists', 'Environmental Engineers', 'Info Security Analysts', 'DevOps Engineer', 'Renewable Energy Eng.'], growingValues: [100, 95, 82, 70, 65, 60, 48, 45, 42, 40, 40, 39, 38, 37, 37], decliningLabels: ['Postal Service Clerks', 'Bank Tellers', 'Data Entry Clerks', 'Cashiers/Ticket Clerks', 'Admin/Exec Secretaries', 'Printing Workers', 'Accounting Clerks', 'Stock-Keeping Clerks', 'Transport Attendants', 'Door-to-Door Sales', 'Graphic Designers', 'Claims Adjusters', 'Legal Officials', 'Legal Secretaries', 'Telemarketers'], decliningValues: [-40, -38, -35, -32, -25, -22, -20, -18, -16, -15, -14, -13, -12, -11, -10] };
+         const largestJobsData = { growingLabels: ['Farmworkers', 'Delivery Drivers', 'Software Devs', 'Building Framers', 'Shop Salespersons', 'Food Processing Workers', 'Car/Van/Moto Drivers', 'Nursing Professionals', 'Food/Bev Serving', 'General/Ops Managers', 'Social Work Profs.', 'Project Managers', 'Higher Ed Teachers', 'Secondary Ed Teachers', 'Personal Care Aides'], growingValues: [35, 9.5, 9, 8.5, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5], decliningLabels: ['Cashiers/Ticket Clerks', 'Admin/Exec Secretaries', 'Building Caretakers', 'Stock-Keeping Clerks', 'Printing Workers', 'Accounting Clerks', 'Accountants/Auditors', 'Transport Attendants', 'Security Guards', 'Bank Tellers', 'Data Entry Clerks', 'Customer Service', 'Graphic Designers', 'Business Svcs Mgrs', 'Claims Adjusters'], decliningValues: [-12, -10, -6, -5.5, -5, -4.5, -4, -3.5, -3, -2.5, -2, -1.8, -1.5, -1.2, -1] };
+         const trendImpactData = { labels: ['Broadening digital access', 'Growing working-age pops.', 'Adapt to climate change', 'Labour/social issues', 'Ageing/declining pops.', 'Reduce carbon emissions', 'Govt subsidies/policy', 'AI & info processing', 'Trade restrictions', 'Energy gen./storage', 'Geopolitical division', 'New materials', 'Rising cost of living', 'Stricter anti-trust', 'Semiconductors', 'Quantum/encryption', 'Biotech/gene tech.', 'Sensing/laser/optical', 'Satellites/space', 'Slower economic growth', 'Robots & autonomous'], netValues: [9.9, 9.1, 5.5, 5.2, 3.8, 3.1, 2.8, 1.8, 1.3, 1.0, 0.9, 0.9, 0.8, 0.7, 0.6, 0.3, 0.2, 0.1, 0.1, -1.6, -4.8] };
+         const humanMachineData = { labels: ['Now', 'By 2030'], human: [47, 33], combination: [30, 33], technology: [22, 34] };
+         const coreSkillsData = { labels: ['Analytical thinking', 'Resilience/flexibility/agility', 'Leadership/social influence', 'Creative thinking', 'Motivation/self-awareness', 'Technological literacy', 'Empathy/active listening', 'Curiosity/lifelong learning', 'Talent management', 'Service orientation'], values: [69, 67, 61, 57, 52, 51, 50, 50, 47, 47] };
+         const risingSkillsData = { labels: ['AI & big data', 'Networks & cybersecurity', 'Technological literacy', 'Creative thinking', 'Resilience/flexibility/agility', 'Curiosity/lifelong learning', 'Leadership/social influence', 'Talent management', 'Analytical thinking', 'Environmental stewardship'], netIncrease: [87, 70, 66, 66, 66, 61, 58, 58, 55, 53] };
+         const reskillingData = { labels: ['No Training Needed', 'Upskilled in Role', 'Reskilled & Redeployed', 'Unlikely to Upskill'], values: [41, 29, 19, 11] };
+         const barriersData = { labels: ['Skills gaps in labour market', 'Org culture/resistance', 'Outdated regulation', 'Inability to attract (industry)', 'Lack of data/infra', 'Inability to attract (firm)', 'Shortage of investment', 'Insufficient understanding'], values: [63, 46, 39, 37, 32, 27, 26, 25] };
+         const workforceStrategiesData = { labels: ['Upskill workforce', 'Accelerate automation', 'Hire new skills', 'Augment workforce', 'Transition staff', 'Reduce staff', 'Re-shore/Near-shore', 'Off-shore'], values: [85, 73, 70, 63, 51, 41, 10, 8] };
+         const talentPracticesData = { labels: ['Support well-being', 'Reskilling/upskilling', 'Improve progression', 'Higher wages', 'Diverse talent pools', 'Remote/hybrid (within country)', 'DEI policies', 'Improve working hours'], values: [64, 63, 62, 50, 47, 43, 39, 38] };
+         const talentPoliciesData = { labels: ['Funding for reskilling', 'Provision of reskilling', 'Improve public education', 'Flexibility (hiring/firing)', 'Flexibility (wages)', 'Laws for remote work', 'Changes to immigration', 'Wage subsidies'], values: [55, 52, 47, 44, 38, 36, 26, 26] };
+         const deiMeasuresData = { labels: ['DEI training', 'Targeted recruitment/progression', 'DEI goals/targets/quotas', 'Pay equity reviews', 'Anti-harassment protocols', 'DEI in supply chain', 'Support for caregivers', 'ERGs', 'DEI officer'], values: [51, 48, 42, 39, 33, 27, 26, 22, 15] };
+         const aiResponseData = { labels: ['Reskill/upskill for AI collab', 'Hire AI design talent', 'Hire AI collab talent', 'Re-orient org for AI opps', 'Transition AI-disrupted staff', 'Downsize AI-replicated roles', 'Low AI exposure'], values: [77, 69, 62, 49, 47, 41, 12] };
+
+        // --- Chart Initialisation & Tab Logic ---
+        let charts = {}; // Object to hold chart instances
+
+        function createOrUpdateChart(canvasId, config) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+             // Add default font color for better readability
+             Chart.defaults.color = '#444'; // Set default text color slightly darker
+             Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"; // Consistent font
+
+            charts[canvasId] = new Chart(ctx, config);
+        }
+
+        function initializeChartsForTab(tabId) {
+             // Clear previous charts specific to other tabs if necessary
+             // Depending on complexity, might need more specific clearing
+             // For now, we recreate charts each time a tab is shown
+
+            if (tabId === 'tab-overview' || !tabId) {
+                 createOrUpdateChart('reskillingOutlookChart', { type: 'pie', data: { labels: reskillingData.labels, datasets: [{ label: 'Workers per 100', data: reskillingData.values, backgroundColor: [wefColors.lightGrey, wefColors.mediumBlue, wefColors.lightBlue, wefColors.red], hoverBackgroundColor: [wefHoverColors.lightGrey, wefHoverColors.mediumBlue, wefHoverColors.lightBlue, wefHoverColors.red], borderColor: '#fff', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Training Outlook per 100 Workers by 2030', color: '#003366', font: { size: 16 } }, legend: { labels: { color: '#333' }} } } });
+            }
+            if (tabId === 'tab-drivers') {
+                createOrUpdateChart('macrotrendsChart', { type: 'bar', data: { labels: macrotrendsData.labels, datasets: [{ label: '% Employers Expecting Trend to Drive Transformation', data: macrotrendsData.values, backgroundColor: wefColors.mediumBlue, hoverBackgroundColor: wefHoverColors.mediumBlue, borderColor: wefColors.darkBlue, borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Macrotrends Driving Business Transformation by 2030', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                createOrUpdateChart('techtrendsChart', { type: 'bar', data: { labels: techtrendsData.labels, datasets: [{ label: '% Employers Expecting Trend to Drive Transformation', data: techtrendsData.values, backgroundColor: wefColors.green, hoverBackgroundColor: wefHoverColors.green, borderColor: wefColors.darkGrey, borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Technology Trends Driving Business Transformation by 2030', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+            }
+             if (tabId === 'tab-jobs') {
+                 createOrUpdateChart('fastestJobsChart', { type: 'bar', data: { labels: [...fastestJobsData.growingLabels, ...fastestJobsData.decliningLabels].map(l => l.length > 25 ? l.substring(0, 22) + '...' : l), datasets: [{ label: 'Fastest Growing Jobs (Net Growth %)', data: [...fastestJobsData.growingValues, ...Array(fastestJobsData.decliningLabels.length).fill(null)], backgroundColor: wefColors.mediumBlue, hoverBackgroundColor: wefHoverColors.mediumBlue }, { label: 'Fastest Declining Jobs (Net Growth %)', data: [...Array(fastestJobsData.growingLabels.length).fill(null), ...fastestJobsData.decliningValues], backgroundColor: wefColors.greyPurple, hoverBackgroundColor: wefHoverColors.greyPurple }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Fastest Growing & Declining Jobs by 2030 (Net Growth %)', color: '#003366', font: { size: 16 } }, legend: { labels: { color: '#333' } } }, scales: { x: { ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { autoSkip: false, font: { size: 9 }, color: '#333' } } } } });
+                 createOrUpdateChart('largestJobsChart', { type: 'bar', data: { labels: [...largestJobsData.growingLabels, ...largestJobsData.decliningLabels].map(l => l.length > 25 ? l.substring(0, 22) + '...' : l), datasets: [{ label: 'Largest Growing Jobs (Millions)', data: [...largestJobsData.growingValues, ...Array(largestJobsData.decliningLabels.length).fill(null)], backgroundColor: wefColors.mediumBlue, hoverBackgroundColor: wefHoverColors.mediumBlue }, { label: 'Largest Declining Jobs (Millions)', data: [...Array(largestJobsData.growingLabels.length).fill(null), ...largestJobsData.decliningValues], backgroundColor: wefColors.greyPurple, hoverBackgroundColor: wefHoverColors.greyPurple }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Largest Growing & Declining Jobs by 2030 (Absolute Numbers, Millions)', color: '#003366', font: { size: 16 } }, legend: { labels: { color: '#333' } } }, scales: { x: { ticks: { color: '#333' } }, y: { ticks: { autoSkip: false, font: { size: 9 }, color: '#333' } } } } });
+                 createOrUpdateChart('trendImpactChart', { type: 'bar', data: { labels: trendImpactData.labels, datasets: [{ label: 'Net Job Effect (Millions)', data: trendImpactData.netValues, backgroundColor: trendImpactData.netValues.map(v => v >= 0 ? wefColors.mediumBlue : wefColors.red), hoverBackgroundColor: trendImpactData.netValues.map(v => v >= 0 ? wefHoverColors.mediumBlue : wefHoverColors.red) }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Net Job Impact of Macro & Tech Trends by 2030 (Millions)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { ticks: { color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('humanMachineChart', { type: 'bar', data: { labels: humanMachineData.labels, datasets: [ { label: 'Human', data: humanMachineData.human, backgroundColor: wefColors.darkBlue, hoverBackgroundColor: wefHoverColors.darkBlue }, { label: 'Combination', data: humanMachineData.combination, backgroundColor: wefColors.lightBlue, hoverBackgroundColor: wefHoverColors.lightBlue }, { label: 'Technology', data: humanMachineData.technology, backgroundColor: wefColors.lightGrey, hoverBackgroundColor: wefHoverColors.lightGrey } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Share of Tasks by Human vs. Technology (Now vs. 2030)', color: '#003366', font: { size: 16 } }, legend: { labels: { color: '#333' } } }, scales: { x: { stacked: true, ticks: { color: '#333' } }, y: { stacked: true, beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } } } } });
+             }
+             if (tabId === 'tab-skills') {
+                 createOrUpdateChart('coreSkillsChart', { type: 'bar', data: { labels: coreSkillsData.labels, datasets: [{ label: '% Employers Identifying as Core Skill (2025)', data: coreSkillsData.values, backgroundColor: wefColors.darkBlue, hoverBackgroundColor: wefHoverColors.darkBlue, borderColor: wefColors.mediumBlue, borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Top 10 Core Skills for Workforce (2025)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('risingSkillsChart', { type: 'bar', data: { labels: risingSkillsData.labels, datasets: [{ label: 'Net Increase in Importance by 2030 (%)', data: risingSkillsData.netIncrease, backgroundColor: wefColors.green, hoverBackgroundColor: wefHoverColors.green, borderColor: wefColors.darkGrey, borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Top 10 Skills Rising in Importance (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('coreSkills2030Chart', { type: 'bar', data: { labels: ['Analytical thinking', 'AI & big data', 'Resilience/flexibility', 'Creative thinking', 'Technological literacy', 'Leadership/influence', 'Networks/cybersecurity', 'Curiosity/learning'], datasets: [{ label: 'Importance + Growth Proxy', data: [ (69+55)/2, (45+87)/2, (67+66)/2, (57+66)/2, (51+66)/2, (61+58)/2, (25+70)/2 , (50+61)/2 ], backgroundColor: wefColors.orange, hoverBackgroundColor: wefHoverColors.orange }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Skills Importance & Growth Proxy for 2030 (See Fig 3.6)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+            }
+            if (tabId === 'tab-strategies') {
+                 createOrUpdateChart('barriersChart', { type: 'bar', data: { labels: barriersData.labels, datasets: [{ label: '% Employers Identifying Barrier', data: barriersData.values, backgroundColor: wefColors.red, hoverBackgroundColor: wefHoverColors.red }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Barriers to Organisational Transformation (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('workforceStrategiesChart', { type: 'bar', data: { labels: workforceStrategiesData.labels, datasets: [{ label: '% Employers Planning Strategy', data: workforceStrategiesData.values, backgroundColor: wefColors.mediumBlue, hoverBackgroundColor: wefHoverColors.mediumBlue }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Planned Workforce Strategies (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('talentPracticesChart', { type: 'bar', data: { labels: talentPracticesData.labels, datasets: [{ label: '% Employers Finding Practice Promising', data: talentPracticesData.values, backgroundColor: wefColors.green, hoverBackgroundColor: wefHoverColors.green }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Business Practices to Increase Talent Availability (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('talentPoliciesChart', { type: 'bar', data: { labels: talentPoliciesData.labels, datasets: [{ label: '% Employers Finding Policy Promising', data: talentPoliciesData.values, backgroundColor: wefColors.orange, hoverBackgroundColor: wefHoverColors.orange }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Public Policies to Increase Talent Availability (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('deiMeasuresChart', { type: 'bar', data: { labels: deiMeasuresData.labels, datasets: [{ label: '% Employers Planning DEI Measure', data: deiMeasuresData.values, backgroundColor: wefColors.greyPurple, hoverBackgroundColor: wefHoverColors.greyPurple }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Planned DEI Measures (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+                 createOrUpdateChart('aiResponseChart', { type: 'bar', data: { labels: aiResponseData.labels, datasets: [{ label: '% Employers Planning Strategy', data: aiResponseData.values, backgroundColor: wefColors.darkGrey, hoverBackgroundColor: wefHoverColors.darkGrey }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Workforce Strategy in Response to AI (2025-2030)', color: '#003366', font: { size: 16 } }, legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%', color: '#333' } }, y: { ticks: { color: '#333' }} } } });
+            }
+        }
+
+        // Tab Switching Logic
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            const activeTab = document.getElementById(tabName);
+             if (activeTab) {
+                activeTab.style.display = "block";
+             }
+             if (evt && evt.currentTarget) {
+                 evt.currentTarget.className += " active";
+             }
+            // Re-render charts for the newly active tab
+            initializeChartsForTab(tabName);
+        }
+
+        // Initialize charts for the default open tab after the DOM is loaded
+         document.addEventListener('DOMContentLoaded', () => {
+             initializeChartsForTab('tab-overview'); // Initialize for the default tab
+         });
+
+    </script>
+</body>
+</html>
